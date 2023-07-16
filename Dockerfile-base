@@ -1,0 +1,15 @@
+# FROM jmal/jdk17_ffmpeg:latest
+FROM harbor.doublespring.top/ds-base/centos-openjdk-17:20230716-1
+
+MAINTAINER technical.help.darcy.zhang@Outlook.com
+
+# 安装 ffmpeg
+# RUN apt-get update && \
+#    apt-get install -y ffmpeg libavcodec-extra
+
+# 安装 ffmpeg
+RUN  yum install epel-release -y && \
+     yum update -y && \
+     rpm --import http://li.nux.ro/download/nux/RPM-GPG-KEY-nux.ro && \
+     rpm -Uvh http://li.nux.ro/download/nux/dextop/el7/x86_64/nux-dextop-release-0-5.el7.nux.noarch.rpm && \
+     yum install ffmpeg ffmpeg-devel -y

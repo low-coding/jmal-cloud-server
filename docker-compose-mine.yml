@@ -1,0 +1,55 @@
+version: '3'
+
+services:
+  mongo:
+    container_name: "jcs_mongodb"
+    image: "registry.cn-guangzhou.aliyuncs.com/jmalcloud/mongodb:4.4"
+    environment:
+      TZ: "Asia/Shanghai"
+    volumes:
+      - /home/darcy/Downloads/jcs/data/db:/data/db
+      - /home/darcy/Downloads/jcs/custom:/etc/mongo
+      - /home/darcy/Downloads/jcs/backup:/dump
+    restart: unless-stopped
+    command: --wiredTigerCacheSizeGB 0.5
+  jmalcloud:
+    container_name: "jcs_server"
+    image: "jmal/jmalcloud:latest"
+    environment:
+      MONGODB_URI: "mongodb://mongo:27017/jmalcloud"
+      PUID: "1000"
+      PGID: "1000"
+      TZ: "Asia/Shanghai"
+    ports:
+      - "8088:8088"
+      - "8089:8089"
+    volumes:
+      - /home/darcy/Downloads/jcs:/jmalcloud/files/
+  nginx:
+    container_name: "jcs_nginx"
+    image: "registry.cn-guangzhou.aliyuncs.com/jmalcloud/nginx:latest"
+    ports:
+      - "80:80"
+      - "8081:8089"
+    volumes:
+      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./docker/www/dist:/var/www/public
+    environment:
+      TZ: "Asia/Shanghai"
+    links:
+      - jmalcloud
+      - office
+      - drawio-webapp
+    restart: unless-stopped
+  office:
+    container_name: "jcs_office"
+    image: "registry.cn-guangzhou.aliyuncs.com/jmalcloud/onlyoffice_documentserver:7.0.0.132"
+    environment:
+      TZ: "Asia/Shanghai"
+    restart: always
+  drawio-webapp:
+    container_name: "jcs_drawio"
+    image: "registry.cn-guangzhou.aliyuncs.com/jmalcloud/jgraph_drawio:16.6.1"
+    environment:
+      TZ: "Asia/Shanghai"
+    restart: always
